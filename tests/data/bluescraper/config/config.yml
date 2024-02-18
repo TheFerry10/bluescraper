@@ -1,0 +1,52 @@
+---
+validation:
+  existing_tags:
+    - name: "div"
+      attrs:
+        class: "teaser-right twelve"
+    - name: "span"
+      attrs:
+        class: "teaser-right__labeltopline"
+  existing_strings_in_tags:
+    - include_string: "headline"
+      tag:
+        name: "span"
+        attrs:
+          class: "teaser-right__headline"
+    - include_string: "Test topline"
+      tag:
+        name: "span"
+        attrs:
+          class: "teaser-right__labeltopline"
+scraping:
+  tags:
+    - id: "article_link"
+      content_type: "href"
+      tag:
+        name: null
+        attrs:
+          class: "teaser-right__link"
+    - id: "topline"
+      content_type: null
+      tag:
+        name: null
+        attrs:
+          class: "teaser-right__labeltopline"
+    - id: "headline"
+      content_type: null
+      tag:
+        name: null
+        attrs:
+          class: "teaser-right__headline"
+    - id: "shorttext"
+      content_type: null
+      tag:
+        name: null
+        attrs:
+          class: "teaser-right__shorttext"
+    - id: "date"
+      content_type: null
+      tag:
+        name: null
+        attrs:
+          class: "teaser-right__date"

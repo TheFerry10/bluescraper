@@ -1,0 +1,33 @@
+---
+scraping:
+  tags:
+    - id: article_link
+      content_type: "href"
+      tag:
+        name: null
+        attrs:
+          class: "teaser-right__link"
+    - id: topline
+      content_type: "text"
+      tag:
+        name: null
+        attrs:
+          class: "teaser-right__labeltopline"
+    - id: headline
+      content_type: "text"
+      tag:
+        name: null
+        attrs:
+          class: "teaser-right__headline"
+    - id: shorttext
+      content_type: "text"
+      tag:
+        name: null
+        attrs:
+          class: "teaser-right__shorttext"
+    - id: date
+      content_type: "text"
+      tag:
+        name: null
+        attrs:
+          class: "teaser-right__date"
