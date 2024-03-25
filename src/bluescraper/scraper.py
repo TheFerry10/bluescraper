@@ -44,6 +44,27 @@ class Scraper:
         tag: TagDefinition,
         content_type: Optional[str],
     ) -> str:
+        """
+        Extract the text information from a tag when it exists within the soup
+        object.
+        The content_type parameter specifies the html attribute from with the
+        text should be read, when not set, the text will be retrieved from the
+        text of the html element. In case of multiple occurrences of the same
+        tag, the results of each extraction will be concatenated.
+
+        Args:
+            soup (BeautifulSoup): Soup for searching occurrences
+            tag (TagDefinition): The target page element
+            content_type (Optional[str]): When specified, the target attribute
+            to extract within the page element
+
+        Raises:
+            HtmlTagNotExists: No match found of the page element within the soup
+
+        Returns:
+            str: Extracted page element in soup. Can be also a concatenated
+            string for multiple occurrences.
+        """
         page_elements = soup.find_all(name=tag.name, attrs=tag.attrs)
         if page_elements:
             extracted_content = [
@@ -68,30 +89,42 @@ class Scraper:
         results: List[dict]
         group_id: Optional[str] = None
 
-    def extract(self) -> List[ScraperGroupData]:
-        # TODO Simplify logic for the extraction
-        if self.config.scraping.groups:
-            return [
-                Scraper.ScraperGroupData(
-                    group_id=group.id,
-                    results=[
-                        {
-                            tag.id: self.extract_tag(
-                                soup=group_soup,
-                                tag=tag.tag,
-                                content_type=tag.content_type,
-                            )
-                            for tag in get_group_tags(
-                                group.contains, self.config.scraping.tags
-                            )
-                        }
-                        for group_soup in self.soup.find_all(
-                            name=group.tag.name, attrs=group.tag.attrs
+    def get_group_soups(
+        self, soup: BeautifulSoup, tag: TagDefinition
+    ) -> Optional[List[BeautifulSoup]]:
+        group_soups = soup.find_all(tag.name, attrs=tag.attrs)
+        if group_soups:
+            return group_soups
+        raise HtmlTagNotExists(
+            f"No element found in html with name {tag.name} and attrs"
+            f" {tag.attrs}"
+        )
+
+    def extract_by_group(self):
+        return [
+            Scraper.ScraperGroupData(
+                group_id=group.id,
+                results=[
+                    {
+                        tag.id: self.extract_tag(
+                            soup=group_soup,
+                            tag=tag.tag,
+                            content_type=tag.content_type,
                         )
-                    ],
-                )
-                for group in self.config.scraping.groups
-            ]
+                        for tag in get_group_tags(
+                            group.contains, self.config.scraping.tags
+                        )
+                    }
+                    for group_soup in self.get_group_soups(
+                        soup=self.soup, tag=group.tag
+                    )
+                ],
+            )
+            for group in self.config.scraping.groups
+        ]
+
+    def extract_tags(self):
+
         return [
             Scraper.ScraperGroupData(
                 results=[
@@ -106,6 +139,13 @@ class Scraper:
                 ]
             )
         ]
+
+    def extract(self) -> List[ScraperGroupData]:
+        # TODO Simplify logic for the extraction
+        if self.config.scraping.groups:
+            return self.extract_by_group()
+        else:
+            return self.extract_tags()
 
 
 def get_group_tags(

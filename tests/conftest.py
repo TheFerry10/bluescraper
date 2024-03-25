@@ -30,11 +30,3 @@ def config_(request):
 @pytest.fixture(name="scraper")
 def scraper_(soup, config):
     return Scraper(soup, config)
-
-
-@pytest.fixture(name="request_params")
-def request_params_():
-    date_ = datetime.date(2023, 11, 4)
-    category = "wirtschaft"
-    archive_filter = ArchiveFilter(date_, category)
-    return create_request_params(archive_filter)

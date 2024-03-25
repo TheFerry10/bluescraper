@@ -1,6 +1,6 @@
 import datetime
 import hashlib
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, Optional, Union
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -15,7 +15,7 @@ def get_extraction_timestamp() -> str:
 
 class TagDefinition(BaseModel):
     name: Optional[str] = None
-    attrs: Optional[Dict[str, str]] = None
+    attrs: Optional[Dict[str, Union[str, int, bool]]] = None
 
 
 def is_tag_in_soup(soup: BeautifulSoup, tag_definition: TagDefinition) -> bool:
@@ -153,19 +153,15 @@ def get_date_range(
         raise ValueError("end_date must be after start_date.")
 
 
-def get_html(url: str, request_params: Optional[dict] = None) -> Optional[str]:
+def get_html(url: str, request_params: Optional[dict] = None) -> str:
     response = requests.get(
         url=url, params=request_params, timeout=DEFAULT_TIMEOUT
     )
     if response.ok:
         return response.text
-    return None
+    raise ValueError
 
 
-def get_soup(
-    url: str, request_params: Optional[dict] = None
-) -> Optional[BeautifulSoup]:
+def get_soup(url: str, request_params: Optional[dict] = None) -> BeautifulSoup:
     html = get_html(url, request_params)
-    if html:
-        return BeautifulSoup(html, "html.parser")
-    return None
+    return BeautifulSoup(html, "html.parser")

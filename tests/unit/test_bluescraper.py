@@ -13,7 +13,7 @@ from bluescraper.config import (
     ValidationConfig,
 )
 from bluescraper.constants import DEFAULT_TIMEOUT
-from bluescraper.scraper import Scraper, get_group_tags
+from bluescraper.scraper import HtmlTagNotExists, Scraper, get_group_tags
 from bluescraper.utils import TagDefinition, get_html, get_soup
 from bluescraper.validation import SoapValidator
 
@@ -345,6 +345,17 @@ def test_extract_tags_with_config_file(scraper):
 
 @pytest.mark.parametrize(
     "html, config",
+    [(constants.VALID_HTML_PATH, constants.INVALID_CONFIG_YAML)],
+    indirect=True,
+)
+def test_cannot_scrape_when_tags_not_in_soup(scraper):
+
+    with pytest.raises(HtmlTagNotExists):
+        scraper.extract()
+
+
+@pytest.mark.parametrize(
+    "html, config",
     [(constants.VALID_GROUPS_HTML_PATH, constants.CONFIG_GROUPS_YAML)],
     indirect=True,
 )
@@ -450,3 +461,31 @@ def test_get_group_tags():
     contains = ["a", "b"]
     tags_in_group = get_group_tags(contains=contains, tags=tags)
     assert tags_in_group == expected
+
+
+@pytest.mark.parametrize(
+    "html, config",
+    [
+        (
+            constants.GROUPS_HANDELSBLATT_HTML_PATH,
+            constants.CONFIG_HANDELSBLATT_GROUPS_HTML_YAML,
+        )
+    ],
+    indirect=True,
+)
+def test_extract_group_with_one_tag(scraper):
+    expected = [
+        Scraper.ScraperGroupData(
+            results=[
+                {"headline": "Headline 1"},
+                {"headline": "Headline 2"},
+                {"headline": "Headline 3"},
+                {"headline": "Headline 4"},
+                {"headline": "Headline 5"},
+            ],
+            group_id="teaser",
+        )
+    ]
+
+    extracted_data = scraper.extract()
+    assert extracted_data == expected

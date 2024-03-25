@@ -1,0 +1,18 @@
+---
+scraping:
+  groups:
+    - id: "teaser"
+      contains:
+        - "headline"
+      tag:
+        name: "li"
+        attrs:
+          class: "ng-star-inserted"
+          _ngcontent-ng-c743313193: True
+  tags:
+    - id: "headline"
+      content_type: null
+      tag:
+        name: "div"
+        attrs:
+          class: "teaser-head"
